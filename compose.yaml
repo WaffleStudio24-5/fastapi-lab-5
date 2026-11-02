@@ -1,0 +1,20 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: lab5-root-local-only
+      MYSQL_DATABASE: seminar_lab5
+      MYSQL_USER: seminar
+      MYSQL_PASSWORD: lab5-local-only
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - lab5_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+volumes:
+  lab5_mysql:

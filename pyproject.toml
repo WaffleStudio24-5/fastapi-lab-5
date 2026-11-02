@@ -1,0 +1,19 @@
+[project]
+name = "fastapi-lab-5"
+version = "0.1.0"
+description = "Waffle Studio FastAPI 5주차: 완성된 CRUD에 테스트 붙이기"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.30,<1",
+    "sqlalchemy>=2.0,<2.1",
+    "pymysql[rsa]>=1.1,<2",
+    "alembic>=1.16,<2",
+]
+
+[dependency-groups]
+dev = ["httpx>=0.27,<1", "pytest>=8,<9"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
