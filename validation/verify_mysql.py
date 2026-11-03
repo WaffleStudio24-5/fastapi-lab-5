@@ -1,9 +1,9 @@
 """별도 임시 MySQL에서 시작 코드와 실제 migration을 검증한다."""
 import os
-from pathlib import Path
 import subprocess
 import sys
 import time
+from pathlib import Path
 from uuid import uuid4
 
 from sqlalchemy import URL, create_engine, inspect, text
