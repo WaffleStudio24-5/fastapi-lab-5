@@ -11,3 +11,7 @@ SessionLocal = sessionmaker(
     expire_on_commit=False,
 )
 Base = declarative_base()
+
+def get_db():
+    with SessionLocal() as db:
+        yield db
