@@ -115,20 +115,7 @@ SQLite 테스트는 API 응답과 SQLAlchemy 연결을 빠르게 확인한다. M
 
 ## 3. 역할을 나눈 코드 적용하기 · 10분
 
-[복사해서 사용할 코드](docs/refactoring.md)의 네 파일을 적용한다. 각 파일을 직접 설계하는 대신 요청이 계층을 어떻게 거치는지 확인한다. 한도 제한은 아직 구현하지 않은 코드다.
-
-```text
-app/main.py          앱 생성, router 등록, health
-app/database.py      기존 Engine·SessionLocal·get_db 유지
-app/repositories.py  SQL 조회와 저장
-app/services.py      작업 흐름, 다음 단계에서 게시글 수 제한
-app/routers.py       HTTP 입력·응답과 상태 코드
-```
-
-- `get_post()`는 목록, `get_post(post_id)`는 단건 또는 None을 반환한다.
-- `update_post(post_id, title)`과 `delete_post(post_id)`에는 Post 객체 대신 ID를 전달한다.
-- 없는 작성자의 404, 없는 글의 404, 본문 없는 삭제 성공 204를 유지한다.
-- fixture와 라우트는 `app.database`의 동일한 `get_db`를 사용한다.
+[노션 실습 3단계](https://app.notion.com/p/40cdf97f025781a89b42c23697cd569b)의 파일별 코드를 적용하고, 요청이 Router → Service → Repository를 거치는 흐름을 확인한다.
 
 ```bash
 uv run pytest -q
