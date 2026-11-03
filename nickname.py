@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from database import SessionLocal
-from models import User
+from app.database import SessionLocal
+from app.models import User
 
 with SessionLocal() as db:
     users = db.scalars(select(User).order_by(User.id)).all()

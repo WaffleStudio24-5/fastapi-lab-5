@@ -1,6 +1,6 @@
 from sqlalchemy import func, inspect, select
 
-from database import Engine
+from app.database import Engine
 
 with Engine.connect() as connection:
     print("연결 대상:", Engine.url.host, Engine.url.database)

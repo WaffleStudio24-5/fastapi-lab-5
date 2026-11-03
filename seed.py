@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from database import SessionLocal
-from models import Post, User
+from app.database import SessionLocal
+from app.models import Post, User
 
 with SessionLocal.begin() as db:
     existing_user = db.scalar(select(User.id).limit(1))

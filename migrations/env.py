@@ -3,8 +3,8 @@ import os
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-from database import Base
-import models  # noqa: F401 — Alembic에 모델을 등록한다.
+import app.models  # noqa: F401 — Alembic에 모델을 등록한다.
+from app.database import Base
 
 url = os.environ["DATABASE_URL"]
 
