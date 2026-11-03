@@ -15,9 +15,5 @@ def test_create_then_read(client):
     pytest.skip("TODO 3: POST의 201과 다음 GET의 본문 확인")
 
 
-def test_private_post_is_hidden(client, session_factory):
-    pytest.skip("TODO 4: is_public을 추가한 뒤 비공개 글의 GET은 404")
-
-
-def test_list_excludes_private_posts(client, session_factory):
-    pytest.skip("TODO 5: 목록에도 비공개 글이 나오지 않는지 확인")
+def test_three_posts_per_user(client, session_factory):
+    pytest.skip("TODO 4: 글이 3개인 사용자의 추가 작성은 409이며 저장된 글도 3개인지 확인")

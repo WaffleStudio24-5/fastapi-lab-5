@@ -74,7 +74,7 @@ def main():
         run("nickname.py")
         run("-c", '''
 from fastapi.testclient import TestClient
-from main import app
+from app.main import app
 with TestClient(app) as client:
     assert client.get("/health").json() == {"status": "ok"}
     assert client.get("/docs").status_code == 200
