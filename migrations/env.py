@@ -1,12 +1,11 @@
-import os
-
 from alembic import context
 from sqlalchemy import create_engine, pool
 
 import app.models  # noqa: F401 — Alembic에 모델을 등록한다.
 from app.database import Base
+from app.settings import settings
 
-url = os.environ["DATABASE_URL"]
+url = settings.database_url
 
 if context.is_offline_mode():
     context.configure(url=url, target_metadata=Base.metadata, literal_binds=True)

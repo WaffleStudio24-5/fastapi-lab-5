@@ -10,6 +10,7 @@ dependencies = [
     "pymysql[rsa]>=1.1,<2",
     "alembic>=1.16,<2",
     "httpx2>=2.16.0",
+    "pydantic-settings>=2,<3",
 ]
 
 [dependency-groups]

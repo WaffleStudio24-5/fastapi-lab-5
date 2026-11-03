@@ -8,7 +8,7 @@ lab 4를 끝낸 코드에서 시작한다. **CRUD를 다시 구현하는 실습�
 |---|---:|---|
 | 이론 | 45분 | 구조·DI 12분, 도입 3분, 환경 5분, 문서 5분, TDD 8분, Pytest 12분 |
 | 휴식 | 10분 | |
-| 실습 | 85분 | 아래 1–5단계 |
+| 실습 | 85분 | 설정 10분 · 코드 읽기 10분 · 테스트 15분 · 역할 분리 5분 · TDD 35분 · 문서 10분 |
 | 마무리 | 10분 | 풀이 비교와 질문 |
 
 설치와 MySQL 준비는 수업 전에 완료한다. 구조 분리는 제공 코드를 적용하고 흐름을 읽는다. 직접 작성할 부분은 테스트와 게시글 수 제한이다.
@@ -49,19 +49,55 @@ $env:MYSQL_PORT = "3307"
 docker compose up -d --wait
 ```
 
-앱에 접속 주소를 전달한다. 3307을 사용했다면 아래 주소도 3307로 바꾼다.
+## 0-1. .env와 BaseSettings로 설정 읽기 · 10분
 
-macOS/Linux:
+설정 코드는 제공되어 있다. `app/settings.py`를 읽고 직접 `.env`를 만들며 동작을 확인한다. 설치·MySQL 준비는 수업 전에 마치고, 이 단계는 실습 85분에 포함한다.
+
+저장소 루트에서 `.env.example`을 복사한다. 이미 `.env`가 있다면 덮어쓰지 말고 필요한 항목만 수정한다.
 
 ```bash
-export DATABASE_URL='mysql+pymysql://seminar:lab5-local-only@127.0.0.1:3306/seminar_lab5?charset=utf8mb4'
+cp -n .env.example .env
+unset DATABASE_URL
 ```
 
-Windows PowerShell:
+PowerShell에서는 `.env`가 없을 때만 `Copy-Item .env.example .env`로 복사하고, `Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue`로 기존 환경 변수를 해제한다.
 
-```powershell
-$env:DATABASE_URL = "mysql+pymysql://seminar:lab5-local-only@127.0.0.1:3306/seminar_lab5?charset=utf8mb4"
+`.env`의 DATABASE_URL은 로컬 실습 MySQL 주소다. 3307을 사용한다면 주소의 포트도 3307로 수정한다. `.env`는 Git에서 제외하고 예시 파일만 공유한다. 이전에 export한 값이 남아 있으면 `.env`보다 우선하므로 해제한 뒤 확인한다.
+
+```python
+# app/settings.py
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    database_url: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
+
+
+settings = Settings()
 ```
+
+`app/database.py`는 `settings.database_url`로 Engine을 만들고, `migrations/env.py`도 같은 설정을 읽는다. `.env`는 실행한 폴더에서 찾으므로 모든 명령은 저장소 루트에서 실행한다. import할 때 설정 객체를 만들기 때문에 파일을 바꾼 뒤에는 앱을 재시작한다.
+
+다음 명령은 값을 출력하지 않고 설정을 읽을 수 있는지만 확인한다.
+
+```bash
+uv run python -c 'from app.settings import settings; print("설정 읽기 성공")'
+```
+
+`database_url`에는 기본값이 없어 `.env`와 환경 변수에 값이 모두 없으면 ValidationError가 난다. 아래 자동 검증은 임시 폴더에서 필수값 누락과 우선순위를 확인하므로 실제 `.env`를 지울 필요가 없다.
+
+```bash
+uv run python validation/verify_settings.py
+```
+
+환경 변수 → `.env` 순으로 읽는다. 테스트의 conftest.py는 앱 import 전에 SQLite 주소를 환경 변수로 지정하므로 `.env`가 MySQL을 가리켜도 테스트는 임시 DB를 사용한다.
+
+### 마이그레이션과 서버 실행
 
 ```bash
 uv run alembic upgrade head
@@ -71,7 +107,7 @@ uv run nickname.py
 uv run uvicorn app.main:app --reload
 ```
 
-`seed.py`는 빈 users 테이블에서 한 번만 실행한다. 재실행하면 기존 데이터를 보존하고 오류를 낸다. nickname의 초기값은 `None`이다. 앱은 `.env`를 자동으로 읽지 않으므로 새 터미널에서는 `DATABASE_URL`을 다시 설정한다.
+`seed.py`는 빈 users 테이블에서 한 번만 실행한다. 재실행하면 기존 데이터를 보존하고 오류를 낸다. nickname의 초기값은 `None`이다. 앱과 Alembic은 저장소 루트의 `.env`를 읽는다. 새 터미널에서도 저장소 폴더로 이동한 뒤 실행한다.
 
 - 문서: <http://127.0.0.1:8000/docs>
 - DB 연결 확인: <http://127.0.0.1:8000/health>
@@ -113,7 +149,7 @@ SQLite 테스트는 API 응답과 SQLAlchemy 연결을 빠르게 확인한다. M
 
 완료 기준: **7 passed, 1 skipped**.
 
-## 3. 역할을 나눈 코드 적용하기 · 10분
+## 3. 역할을 나눈 코드 적용하기 · 5분
 
 [노션 실습 3단계](https://app.notion.com/p/40cdf97f025781a89b42c23697cd569b)의 파일별 코드를 적용하고, 요청이 Router → Service → Repository를 거치는 흐름을 확인한다.
 
@@ -152,7 +188,7 @@ TODO 1–3을 마쳤다면 첫 명령은 **7 passed, 1 skipped**, 두 번째는 
 
 실습 결과 코드처럼 목록에서 작성자의 글을 골라 개수를 세어도 된다. 데이터가 많다면 Repository의 사용자별 COUNT 쿼리로 개선할 수 있다. 개수 확인과 저장 사이에 다른 요청이 들어올 수 있으므로, 이 구현은 동시 요청까지 한도를 보장하지 않는다.
 
-## 5. API 문서와 테스트 확인 · 10분 + 여유 5분
+## 5. API 문서와 테스트 확인 · 10분
 
 - POST description에 최대 3개까지 작성할 수 있음을 설명한다.
 - responses에 409 설명을 추가한다. 문서 설정이 실제 오류 처리를 대신하지는 않는다.
@@ -172,6 +208,7 @@ TODO 1–3을 마쳤다면 첫 명령은 **7 passed, 1 skipped**, 두 번째는 
 ```bash
 uv run pytest -q tests/test_start.py validation
 uv run python validation/verify_mysql.py
+uv run python validation/verify_settings.py
 ```
 
 첫 명령은 CRUD·404·422·204·테스트 데이터 독립성과 OpenAPI 경로를 확인한다. 시작 코드는 **12 passed**가 예상 결과다. 학생 TODO를 제외하므로 이 결과만으로 한도 제한을 검증했다고 할 수 없다.
