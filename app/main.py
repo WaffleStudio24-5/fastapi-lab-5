@@ -4,9 +4,9 @@ from fastapi import Depends, FastAPI, HTTPException, Path, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from database import SessionLocal
-from models import Post, User
-from schemas import PostCreate, PostResponse, PostUpdate
+from app.database import SessionLocal
+from app.models import Post, User
+from app.schemas import PostCreate, PostResponse, PostUpdate
 
 app = FastAPI(title="5주차 · lab 4 완성본에서 시작하기")
 
